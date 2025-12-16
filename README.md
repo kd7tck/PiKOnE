@@ -16,6 +16,7 @@ This program utilizes a Rust Axum server to display a GUI for user interaction.
     *   Each number is linked to either Choice A or Choice B.
     *   The association between the numbers and the choices randomly alternates each round.
     *   The user randomly picks one of the displayed numbers without knowing which choice it corresponds to.
+    *   Sometimes A is on the left side other times the right side.
 4.  **Data Collection**: In the background, the server tracks how many times Choice A or Choice B is selected.
 5.  **Analysis**: At the end of the sessions, an algorithm calculates a Z-score to determine if there is a statistical anomaly in the results.
 
