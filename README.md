@@ -6,6 +6,8 @@ PiKOnE is a randomizer engine that utilizes the University of Colorado Randomnes
 
 This program utilizes a Rust Axum server to display a GUI for user interaction.
 
+**Strict Randomness Requirement:** This application strictly uses **only** quantum randomness sourced directly from the CURBy-Q beacon. No pseudo-random number generators (PRNGs) are used for decision making.
+
 ## How It Works
 
 1.  **Input**: The user enters two choices, Choice A and Choice B.
@@ -14,9 +16,8 @@ This program utilizes a Rust Axum server to display a GUI for user interaction.
     *   The user sits down for $N$ sessions.
     *   In each session, two random numbers are displayed.
     *   Each number is linked to either Choice A or Choice B.
-    *   The association between the numbers and the choices randomly alternates each round.
+    *   The association between the numbers and the choices randomly alternates each round, determined solely by quantum entropy.
     *   The user randomly picks one of the displayed numbers without knowing which choice it corresponds to.
-    *   Sometimes A is on the left side other times the right side.
 4.  **Data Collection**: In the background, the server tracks how many times Choice A or Choice B is selected.
 5.  **Analysis**: At the end of the sessions, an algorithm calculates a Z-score to determine if there is a statistical anomaly in the results.
 
@@ -24,6 +25,17 @@ This program utilizes a Rust Axum server to display a GUI for user interaction.
 
 The results are generated into a PDF file, which can be saved to a location of the user's choice.
 
-## Goal
+## Building and Running
 
-The goal of PiKOnE is to determine if a person, when presented with random numbers associated with either of two choices, will produce an outcome that deviates from the normal distribution (i.e., a statistical anomaly).
+### Prerequisites
+- Rust (latest stable)
+- Internet connection (to access `random.colorado.edu`)
+
+### Steps
+1.  Clone the repository.
+2.  Run `cargo run`.
+3.  Open your browser to `http://localhost:3000`.
+
+## License
+
+MIT

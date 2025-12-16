@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PiKOnE - Quantum Randomness Engine</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        h1 { color: #333; margin-bottom: 1.5rem; }
+        .input-group { margin-bottom: 1rem; text-align: left; }
+        label { display: block; margin-bottom: 0.5rem; color: #666; }
+        input { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #007bff; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; width: 100%; transition: background 0.3s; }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .hidden { display: none; }
+        .game-area { display: flex; justify-content: space-between; margin-top: 2rem; }
+        .card { background: #e9ecef; border: 2px solid #dee2e6; border-radius: 8px; padding: 2rem; width: 45%; cursor: pointer; font-size: 2rem; font-weight: bold; transition: transform 0.2s, background 0.2s; }
+        .card:hover { transform: translateY(-5px); background: #dfe4ea; border-color: #007bff; }
+        .progress { margin-top: 1rem; color: #666; font-size: 0.9rem; }
+        .results { margin-top: 1rem; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #007bff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container" id="config-screen">
+    <h1>PiKOnE Setup</h1>
+    <div class="input-group">
+        <label for="choice_a">Choice A Name</label>
+        <input type="text" id="choice_a" placeholder="e.g. Yes">
+    </div>
+    <div class="input-group">
+        <label for="choice_b">Choice B Name</label>
+        <input type="text" id="choice_b" placeholder="e.g. No">
+    </div>
+    <div class="input-group">
+        <label for="sessions">Number of Sessions (N)</label>
+        <input type="number" id="sessions" value="10" min="1">
+    </div>
+    <button onclick="startSimulation()">Start Simulation</button>
+</div>
+
+<div class="container hidden" id="loading-screen">
+    <h1>Harvesting Entropy...</h1>
+    <p>Please wait while we fetch quantum randomness from CURBy.</p>
+    <div class="loader"></div>
+</div>
+
+<div class="container hidden" id="game-screen">
+    <h2 id="instruction">Pick a Number</h2>
+    <div class="progress">Session <span id="current-session">1</span> / <span id="total-sessions">10</span></div>
+    <div class="game-area">
+        <div class="card" id="card-left" onclick="makeChoice('left')">?</div>
+        <div class="card" id="card-right" onclick="makeChoice('right')">?</div>
+    </div>
+</div>
+
+<div class="container hidden" id="result-screen">
+    <h1>Results</h1>
+    <div class="results">
+        <p><strong>Z-Score:</strong> <span id="z-score"></span></p>
+        <p><strong>Choice A (<span id="res-name-a"></span>):</strong> <span id="res-count-a"></span></p>
+        <p><strong>Choice B (<span id="res-name-b"></span>):</strong> <span id="res-count-b"></span></p>
+        <p id="analysis-msg"></p>
+    </div>
+    <button onclick="downloadReport()">Download PDF Report</button>
+    <button onclick="location.reload()" style="margin-top: 10px; background: #6c757d;">New Simulation</button>
+</div>
+
+<script>
+    let sessionData = [];
+    let currentStep = 0;
+    let userSelections = []; // 'left' or 'right'
+    let config = {};
+    let sessionId = null;
+
+    async function startSimulation() {
+        const choiceA = document.getElementById('choice_a').value || 'Choice A';
+        const choiceB = document.getElementById('choice_b').value || 'Choice B';
+        const sessions = parseInt(document.getElementById('sessions').value);
+
+        if (!sessions || sessions < 1) {
+            alert("Please enter a valid number of sessions.");
+            return;
+        }
+
+        config = { choiceA, choiceB, sessions };
+
+        // UI Transition
+        document.getElementById('config-screen').classList.add('hidden');
+        document.getElementById('loading-screen').classList.remove('hidden');
+
+        try {
+            const response = await fetch('/api/start', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+
+            if (!response.ok) throw new Error("Server error");
+
+            const data = await response.json();
+            sessionId = data.session_id;
+            sessionData = data.steps; // Array of {left_number, right_number}
+
+            // Start Game
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('total-sessions').innerText = sessions;
+
+            showStep(0);
+
+        } catch (e) {
+            alert("Error starting simulation: " + e.message);
+            location.reload();
+        }
+    }
+
+    function showStep(idx) {
+        currentStep = idx;
+        document.getElementById('current-session').innerText = idx + 1;
+        document.getElementById('card-left').innerText = sessionData[idx].left_number;
+        document.getElementById('card-right').innerText = sessionData[idx].right_number;
+    }
+
+    function makeChoice(side) {
+        userSelections.push(side);
+
+        if (currentStep < config.sessions - 1) {
+            showStep(currentStep + 1);
+        } else {
+            finishSimulation();
+        }
+    }
+
+    async function finishSimulation() {
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('loading-screen').classList.remove('hidden');
+        document.querySelector('#loading-screen h1').innerText = "Analyzing...";
+
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    selections: userSelections,
+                    choice_a: config.choiceA,
+                    choice_b: config.choiceB
+                })
+            });
+
+            if (!response.ok) throw new Error("Analysis failed");
+
+            const result = await response.json();
+
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('z-score').innerText = result.z_score.toFixed(4);
+            document.getElementById('res-name-a').innerText = config.choiceA;
+            document.getElementById('res-name-b').innerText = config.choiceB;
+            document.getElementById('res-count-a').innerText = result.count_a;
+            document.getElementById('res-count-b').innerText = result.count_b;
+            document.getElementById('analysis-msg').innerText = result.message;
+
+        } catch (e) {
+            alert("Error analyzing results: " + e.message);
+        }
+    }
+
+    function downloadReport() {
+        window.open(`/api/report/${sessionId}`, '_blank');
+    }
+</script>
+
+</body>
+</html>
