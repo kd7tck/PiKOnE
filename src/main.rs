@@ -2,7 +2,7 @@ use axum::{
     routing::{get, post},
     Router,
     Json,
-    response::{Html, IntoResponse},
+    response::IntoResponse,
     http::{StatusCode, HeaderMap, header},
     extract::Path,
 };
@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
+use tower_http::services::{ServeDir, ServeFile};
 
 mod curby;
 mod simulation;
@@ -38,9 +39,11 @@ async fn main() {
     });
 
     // build our application with a route
+    // We serve the static index.html at the root path "/"
+    // and expose the whole static folder just in case we add more assets later.
     let app = Router::new()
-        .route("/", get(index_handler))
-        .route("/index.html", get(index_handler))
+        .route_service("/", ServeFile::new("static/index.html"))
+        .nest_service("/static", ServeDir::new("static"))
         .route("/api/start", post(start_simulation))
         .route("/api/analyze", post(analyze_results))
         .route("/api/report/:session_id", get(download_report))
@@ -49,13 +52,6 @@ async fn main() {
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
-}
-
-async fn index_handler() -> Html<String> {
-    match std::fs::read_to_string("index.html") {
-        Ok(content) => Html(content),
-        Err(_) => Html("<h1>Error loading index.html</h1>".to_string()),
-    }
 }
 
 #[derive(Deserialize)]
