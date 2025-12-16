@@ -4,7 +4,7 @@ PiKOnE is a randomizer engine that utilizes the University of Colorado Randomnes
 
 ## Technical Overview
 
-This program utilizes a Rust Axum server to display a GUI for user interaction.
+This program utilizes a Rust Axum server to display a modern, responsive GUI for user interaction, featuring a colorful vector-style design.
 
 **Strict Randomness Requirement:** This application strictly uses **only** quantum randomness sourced directly from the CURBy-Q beacon. No pseudo-random number generators (PRNGs) are used for decision making.
 
