@@ -36,6 +36,15 @@ The results are generated into a PDF file, which can be saved to a location of t
 2.  Run `cargo run`.
 3.  Open your browser to `http://localhost:3000`.
 
+## Development
+
+The project structure is as follows:
+- `src/`: Contains the Rust backend code.
+- `static/`: Contains the frontend assets (HTML, CSS, JS). `index.html` serves as the entry point.
+- `Cargo.toml`: Rust dependencies and configuration.
+
+The backend is built with `axum` and serves the static files located in `static/`.
+
 ## License
 
 MIT
