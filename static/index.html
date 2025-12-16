@@ -11,7 +11,7 @@
             --accent: #FFE66D; /* Yellow */
             --dark: #2F2F2F;
             --light: #F7FFF7;
-            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --bg-gradient: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
         }
 
         body {
@@ -23,66 +23,72 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow-x: hidden; /* Prevent scroll from absolute elements */
+            overflow: hidden;
+            position: relative;
         }
 
-        /* Background decorative blobs */
-        body::before {
-            content: '';
+        /* SVG Background */
+        .background-art {
             position: absolute;
-            width: 400px;
-            height: 400px;
-            background: var(--secondary);
-            border-radius: 50%;
-            top: -150px;
-            left: -150px;
-            opacity: 0.15;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
-            filter: blur(50px);
+            overflow: hidden;
         }
 
-        body::after {
-            content: '';
+        .shape {
             position: absolute;
-            width: 500px;
-            height: 500px;
-            background: var(--primary);
-            border-radius: 50%;
-            bottom: -200px;
-            right: -200px;
-            opacity: 0.15;
-            z-index: -1;
-            filter: blur(50px);
+            opacity: 0.7;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(30px, 30px) rotate(10deg); }
         }
 
         .container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             padding: 3rem;
             border-radius: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-            width: 450px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            width: 480px;
             max-width: 90%;
             text-align: center;
             position: relative;
-            animation: fadeIn 0.5s ease-out;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255,255,255,0.5);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         h1 {
             color: var(--dark);
-            margin-bottom: 2rem;
-            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            letter-spacing: -0.5px;
+            letter-spacing: -1px;
+            background: -webkit-linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         h2 {
             font-weight: 700;
             color: var(--dark);
+            margin-top: 0;
+        }
+
+        p.subtitle {
+            color: #777;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
         }
 
         .input-group {
@@ -102,7 +108,7 @@
 
         input {
             width: 100%;
-            padding: 1rem;
+            padding: 1rem 1.2rem;
             border: 2px solid #eee;
             border-radius: 16px;
             box-sizing: border-box;
@@ -133,6 +139,7 @@
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-top: 1rem;
         }
 
         button:hover {
@@ -142,13 +149,6 @@
 
         button:active {
             transform: translateY(-1px);
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         .hidden { display: none; }
@@ -163,39 +163,41 @@
         .card {
             background: white;
             border: 2px solid #eee;
-            border-radius: 20px;
-            padding: 2.5rem 1rem;
+            border-radius: 24px;
+            padding: 3rem 1rem;
             width: 45%;
             cursor: pointer;
-            font-size: 2.5rem;
+            font-size: 3rem;
             font-weight: 900;
             color: var(--dark);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Decorative stripe on cards */
-        .card::after {
-            content: '';
+        /* Vector pattern on cards */
+        .card-bg {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 8px;
-            background: var(--secondary);
-            transition: height 0.3s;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 0;
+        }
+
+        .card span {
+            z-index: 1;
         }
 
         .card:hover {
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-10px) scale(1.03);
             border-color: var(--secondary);
-            box-shadow: 0 15px 30px rgba(78, 205, 196, 0.2);
-        }
-
-        .card:hover::after {
-            height: 12px;
+            box-shadow: 0 20px 40px rgba(78, 205, 196, 0.3);
         }
 
         .card:active {
@@ -209,8 +211,8 @@
             font-weight: 600;
             background: #f0f0f0;
             display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
         }
 
         .results {
@@ -225,83 +227,183 @@
         .results p {
             margin: 0.8rem 0;
             font-size: 1.05rem;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--secondary);
+        /* Quantum Loader */
+        .quantum-loader {
+            width: 80px;
+            height: 80px;
+            margin: 40px auto;
+            position: relative;
+        }
+
+        .orbit {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 30px auto;
+            border: 2px solid rgba(78, 205, 196, 0.3);
+            animation: rotate 2s linear infinite;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .orbit:nth-child(2) {
+            animation-delay: -0.5s;
+            transform: rotate(60deg);
+        }
+
+        .orbit:nth-child(3) {
+            animation-delay: -1.0s;
+            transform: rotate(120deg);
+        }
+
+        .orbit::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
         /* Secondary button style */
-        button[onclick="location.reload()"] {
-            background: #95a5a6;
-            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
-            margin-top: 1rem;
+        button.secondary-btn {
+            background: white;
+            color: #777;
+            border: 2px solid #eee;
+            box-shadow: none;
+            margin-top: 0.5rem;
         }
-        button[onclick="location.reload()"]:hover {
-            background: #7f8c8d;
-            box-shadow: 0 8px 20px rgba(149, 165, 166, 0.4);
+        button.secondary-btn:hover {
+            background: #f8f9fa;
+            border-color: #ddd;
+            transform: translateY(-2px);
+            color: #555;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
         /* Result highlighting */
-        #z-score {
+        .highlight-value {
             color: var(--primary);
+            font-weight: 800;
+        }
+
+        .anomaly-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .anomaly-yes {
+            background: #ffecec;
+            color: #d63031;
+            border: 1px solid #ff7675;
+        }
+
+        .anomaly-no {
+            background: #e3fcf7;
+            color: #00b894;
+            border: 1px solid #55efc4;
         }
     </style>
 </head>
 <body>
 
+<!-- SVG Background Art -->
+<div class="background-art">
+    <svg width="100%" height="100%" viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice">
+        <!-- Floating Blobs -->
+        <g class="shape" style="animation-duration: 25s; top: 10%; left: 10%;">
+            <path d="M41.5,-68.6C54.3,-64.1,65.6,-56.3,74.6,-46.4C83.6,-36.5,90.3,-24.5,91.3,-12.1C92.3,0.3,87.6,13.1,81,24.8C74.4,36.5,65.9,47.1,55.3,55.4C44.7,63.7,32,69.7,19.2,72.6C6.4,75.5,-6.5,75.3,-18.8,71.7C-31.1,68.1,-42.8,61.1,-52.8,52.2C-62.8,43.3,-71.1,32.5,-75.6,20.4C-80.1,8.3,-80.8,-5.1,-76.3,-17.2C-71.8,-29.3,-62.1,-40.1,-51.1,-45.9C-40.1,-51.7,-27.8,-52.5,-16.1,-57.8C-4.4,-63.1,6.8,-72.9,19.6,-74.6C32.4,-76.3,46.8,-69.9,41.5,-68.6Z"
+                  fill="#4ECDC4" opacity="0.15" transform="translate(200 200) scale(2)" />
+        </g>
+        <g class="shape" style="animation-duration: 30s; animation-delay: -5s; top: 60%; left: 70%;">
+            <path d="M37.7,-64.4C49.6,-58.5,60.5,-50.8,69.5,-41.3C78.5,-31.8,85.6,-20.5,86.2,-8.9C86.8,2.7,80.9,14.6,73.6,25.1C66.3,35.6,57.6,44.7,48,52.1C38.4,59.5,27.9,65.2,16.8,67.6C5.7,70,-6,69.1,-17.1,65.7C-28.2,62.3,-38.7,56.4,-48.1,48.5C-57.5,40.6,-65.8,30.7,-70.5,19.3C-75.2,7.9,-76.3,-5,-72.1,-16.6C-67.9,-28.2,-58.4,-38.5,-47.9,-45.3C-37.4,-52.1,-25.9,-55.4,-14.8,-57.8C-3.7,-60.2,7.4,-61.7,18.5,-62.4C29.6,-63.1,44.2,-63,37.7,-64.4Z"
+                  fill="#FF6B6B" opacity="0.15" transform="translate(800 600) scale(2.5)" />
+        </g>
+        <g class="shape" style="animation-duration: 35s; animation-delay: -10s; top: 80%; left: 20%;">
+            <circle cx="300" cy="800" r="150" fill="#FFE66D" opacity="0.1" />
+        </g>
+    </svg>
+</div>
+
 <div class="container" id="config-screen">
-    <h1>PiKOnE Setup</h1>
+    <h1>PiKOnE</h1>
+    <p class="subtitle">Quantum Randomness Engine</p>
+
     <div class="input-group">
         <label for="choice_a">Choice A Name</label>
-        <input type="text" id="choice_a" placeholder="e.g. Yes">
+        <input type="text" id="choice_a" placeholder="e.g. Action">
     </div>
     <div class="input-group">
         <label for="choice_b">Choice B Name</label>
-        <input type="text" id="choice_b" placeholder="e.g. No">
+        <input type="text" id="choice_b" placeholder="e.g. Inaction">
     </div>
     <div class="input-group">
         <label for="sessions">Number of Sessions (N)</label>
         <input type="number" id="sessions" value="10" min="1">
     </div>
-    <button onclick="startSimulation()">Start Simulation</button>
+    <button onclick="startSimulation()">Initialize Engine</button>
 </div>
 
 <div class="container hidden" id="loading-screen">
-    <h1>Harvesting Entropy...</h1>
-    <p>Please wait while we fetch quantum randomness from CURBy.</p>
-    <div class="loader"></div>
+    <h1>Harvesting Entropy</h1>
+    <p>Interfacing with CURBy quantum beacon...</p>
+    <div class="quantum-loader">
+        <div class="orbit"></div>
+        <div class="orbit"></div>
+        <div class="orbit"></div>
+    </div>
 </div>
 
 <div class="container hidden" id="game-screen">
-    <h2 id="instruction">Pick a Number</h2>
+    <h2 id="instruction">Select a Quantum State</h2>
     <div class="progress">Session <span id="current-session">1</span> / <span id="total-sessions">10</span></div>
     <div class="game-area">
-        <div class="card" id="card-left" onclick="makeChoice('left')">?</div>
-        <div class="card" id="card-right" onclick="makeChoice('right')">?</div>
+        <div class="card" id="card-left" onclick="makeChoice('left')">
+            <!-- Subtle vector pattern -->
+            <svg class="card-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0,100 L100,0 L100,100 Z" fill="#4ECDC4" opacity="0.2"/>
+            </svg>
+            <span>?</span>
+        </div>
+        <div class="card" id="card-right" onclick="makeChoice('right')">
+            <svg class="card-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0,100 L100,0 L0,0 Z" fill="#FF6B6B" opacity="0.2"/>
+            </svg>
+            <span>?</span>
+        </div>
     </div>
 </div>
 
 <div class="container hidden" id="result-screen">
-    <h1>Results</h1>
+    <h1>Analysis Complete</h1>
     <div class="results">
-        <p><strong>Z-Score:</strong> <span id="z-score"></span></p>
-        <p><strong>Choice A (<span id="res-name-a"></span>):</strong> <span id="res-count-a"></span></p>
-        <p><strong>Choice B (<span id="res-name-b"></span>):</strong> <span id="res-count-b"></span></p>
-        <p id="analysis-msg"></p>
+        <p><strong>Z-Score</strong> <span id="z-score" class="highlight-value"></span></p>
+        <p><strong><span id="res-name-a"></span></strong> <span id="res-count-a"></span></p>
+        <p><strong><span id="res-name-b"></span></strong> <span id="res-count-b"></span></p>
+        <div id="analysis-msg" class="anomaly-badge"></div>
     </div>
-    <button onclick="downloadReport()">Download PDF Report</button>
-    <button onclick="location.reload()">New Simulation</button>
+    <button onclick="downloadReport()">Download Report (PDF)</button>
+    <button class="secondary-btn" onclick="location.reload()">New Simulation</button>
 </div>
 
 <script>
@@ -341,11 +443,13 @@
             sessionData = data.steps; // Array of {left_number, right_number}
 
             // Start Game
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('game-screen').classList.remove('hidden');
-            document.getElementById('total-sessions').innerText = sessions;
-
-            showStep(0);
+            // Small delay to let the animation play a bit
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('game-screen').classList.remove('hidden');
+                document.getElementById('total-sessions').innerText = sessions;
+                showStep(0);
+            }, 1000);
 
         } catch (e) {
             alert("Error starting simulation: " + e.message);
@@ -356,8 +460,8 @@
     function showStep(idx) {
         currentStep = idx;
         document.getElementById('current-session').innerText = idx + 1;
-        document.getElementById('card-left').innerText = sessionData[idx].left_number;
-        document.getElementById('card-right').innerText = sessionData[idx].right_number;
+        document.getElementById('card-left').querySelector('span').innerText = sessionData[idx].left_number;
+        document.getElementById('card-right').querySelector('span').innerText = sessionData[idx].right_number;
     }
 
     function makeChoice(side) {
@@ -373,7 +477,8 @@
     async function finishSimulation() {
         document.getElementById('game-screen').classList.add('hidden');
         document.getElementById('loading-screen').classList.remove('hidden');
-        document.querySelector('#loading-screen h1').innerText = "Analyzing...";
+        document.querySelector('#loading-screen h1').innerText = "Processing Data";
+        document.querySelector('#loading-screen p').innerText = "Analyzing statistical variance...";
 
         try {
             const response = await fetch('/api/analyze', {
@@ -391,15 +496,26 @@
 
             const result = await response.json();
 
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
+            // Simulate processing time
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
 
-            document.getElementById('z-score').innerText = result.z_score.toFixed(4);
-            document.getElementById('res-name-a').innerText = config.choiceA;
-            document.getElementById('res-name-b').innerText = config.choiceB;
-            document.getElementById('res-count-a').innerText = result.count_a;
-            document.getElementById('res-count-b').innerText = result.count_b;
-            document.getElementById('analysis-msg').innerText = result.message;
+                document.getElementById('z-score').innerText = result.z_score.toFixed(4);
+                document.getElementById('res-name-a').innerText = config.choiceA;
+                document.getElementById('res-name-b').innerText = config.choiceB;
+                document.getElementById('res-count-a').innerText = result.count_a;
+                document.getElementById('res-count-b').innerText = result.count_b;
+
+                const msgEl = document.getElementById('analysis-msg');
+                msgEl.innerText = result.message;
+
+                if (result.message.includes("Significant")) {
+                    msgEl.className = "anomaly-badge anomaly-yes";
+                } else {
+                    msgEl.className = "anomaly-badge anomaly-no";
+                }
+            }, 1000);
 
         } catch (e) {
             alert("Error analyzing results: " + e.message);
