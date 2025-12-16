@@ -47,4 +47,4 @@ The backend is built with `axum` and serves the static files located in `static/
 
 ## License
 
-MIT
+GNU 3.0
