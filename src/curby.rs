@@ -72,6 +72,7 @@ struct RandomnessBytes {
 }
 
 impl CurbyClient {
+    /// Creates a new CurbyClient instance with a default timeout.
     pub fn new() -> Self {
         Self {
             client: Client::builder().timeout(std::time::Duration::from_secs(10)).build().unwrap(),
@@ -81,6 +82,7 @@ impl CurbyClient {
     }
 
     /// Retrieves the Chain ID for the "CURBy-Q" quantum source.
+    /// This is required because the chain ID might change or we need to look it up dynamically.
     async fn get_quantum_chain_id(&mut self) -> Result<String> {
         if let Some(id) = &self.chain_id_cache {
             return Ok(id.clone());
