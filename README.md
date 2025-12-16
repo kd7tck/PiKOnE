@@ -40,6 +40,9 @@ This program utilizes a Rust Axum server to display a modern, responsive GUI for
 2.  Run `cargo run`.
 3.  Open your browser to `http://localhost:3000`.
 
+### Windows Users
+For a very detailed, step-by-step guide on how to install and run this on Windows, please read [WINDOWS_GUIDE.md](WINDOWS_GUIDE.md).
+
 ## Development
 
 The project structure is as follows:
