@@ -43,6 +43,10 @@ This program utilizes a Rust Axum server to display a modern, responsive GUI for
 ### Windows Users
 For a very detailed, step-by-step guide on how to install and run this on Windows, please read [WINDOWS_GUIDE.md](WINDOWS_GUIDE.md).
 
+**Quick Start:**
+1. Install Rust.
+2. Double-click `start_windows.bat`.
+
 ## Development
 
 The project structure is as follows:
