@@ -3,14 +3,14 @@ use axum::{
     Router,
     Json,
     response::IntoResponse,
-    http::{StatusCode, HeaderMap, header},
+    http::{StatusCode, HeaderMap, header, Uri},
     extract::Path,
 };
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
-use tower_http::services::{ServeDir, ServeFile};
+use rust_embed::RustEmbed;
 
 mod curby;
 mod simulation;
@@ -18,6 +18,11 @@ mod stats;
 mod report;
 
 use simulation::{SimulationEngine, SessionStep};
+
+// Embed static assets
+#[derive(RustEmbed)]
+#[folder = "static/"]
+struct Assets;
 
 // In-memory state to hold active sessions
 // In a production app, use a database or Redis.
@@ -40,10 +45,11 @@ async fn main() {
 
     // build our application with a route
     // We serve the static index.html at the root path "/"
-    // and expose the whole static folder just in case we add more assets later.
+    // and expose the whole static folder via the embedded Assets handler.
     let app = Router::new()
-        .route_service("/", ServeFile::new("static/index.html"))
-        .nest_service("/static", ServeDir::new("static"))
+        .route("/", get(index_handler))
+        .route("/index.html", get(index_handler))
+        .route("/static/*file", get(static_handler))
         .route("/api/start", post(start_simulation))
         .route("/api/analyze", post(analyze_results))
         .route("/api/report/:session_id", get(download_report))
@@ -85,6 +91,32 @@ async fn main() {
     println!(" -> If that doesn't work, try http://127.0.0.1:3000");
 
     axum::serve(listener_v4, app).await.unwrap();
+}
+
+async fn index_handler() -> impl IntoResponse {
+    serve_asset("index.html")
+}
+
+async fn static_handler(uri: Uri) -> impl IntoResponse {
+    let path = uri.path().trim_start_matches('/');
+    // if path starts with static/, strip it
+    let clean_path = if path.starts_with("static/") {
+        &path["static/".len()..]
+    } else {
+        path
+    };
+
+    serve_asset(clean_path)
+}
+
+fn serve_asset(path: &str) -> impl IntoResponse {
+    match Assets::get(path) {
+        Some(content) => {
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+            ([(header::CONTENT_TYPE, mime.as_ref())], content.data).into_response()
+        }
+        None => (StatusCode::NOT_FOUND, "404 Not Found").into_response(),
+    }
 }
 
 #[derive(Deserialize)]
