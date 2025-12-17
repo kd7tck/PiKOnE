@@ -49,8 +49,22 @@ async fn main() {
         .route("/api/report/:session_id", get(download_report))
         .with_state(shared_state);
 
+    // Spawn IPv6 listener in the background (best effort)
+    // This helps on Windows where localhost might resolve to ::1, but 0.0.0.0 only listens on IPv4.
+    let app_v6 = app.clone();
+    tokio::spawn(async move {
+        if let Ok(listener) = TcpListener::bind("[::1]:3000").await {
+             println!("listening on {}", listener.local_addr().unwrap());
+             axum::serve(listener, app_v6).await.unwrap();
+        }
+    });
+
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    println!("listening on {}", listener.local_addr().unwrap());
+    let addr = listener.local_addr().unwrap();
+    println!("listening on {}", addr);
+    println!(" -> Open http://localhost:3000 in your browser");
+    println!(" -> If that doesn't work, try http://127.0.0.1:3000");
+
     axum::serve(listener, app).await.unwrap();
 }
 

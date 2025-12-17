@@ -52,6 +52,10 @@ We have created a script that automatically downloads necessary prerequisites (l
     ```
     http://localhost:3000
     ```
+    *   **Note:** If that doesn't work (especially on Edge), try this address instead:
+        ```
+        http://127.0.0.1:3000
+        ```
 4.  You should now see the PiKOnE interface!
 
 ## Troubleshooting
