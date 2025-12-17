@@ -49,23 +49,42 @@ async fn main() {
         .route("/api/report/:session_id", get(download_report))
         .with_state(shared_state);
 
-    // Spawn IPv6 listener in the background (best effort)
-    // This helps on Windows where localhost might resolve to ::1, but 0.0.0.0 only listens on IPv4.
-    let app_v6 = app.clone();
-    tokio::spawn(async move {
-        if let Ok(listener) = TcpListener::bind("[::1]:3000").await {
-             println!("listening on {}", listener.local_addr().unwrap());
-             axum::serve(listener, app_v6).await.unwrap();
-        }
-    });
+    println!("Starting PiKOnE Server...");
 
-    let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    let addr = listener.local_addr().unwrap();
-    println!("listening on {}", addr);
+    // Windows Edge (and potentially other clients) on localhost often prefer IPv6 [::1].
+    // We attempt to bind [::1] FIRST to ensure it is captured if available.
+    // We do this in the main thread (awaiting) so we know if it succeeded before continuing.
+    // We use a "best effort" approach: if it fails (e.g. no IPv6 support), we log and move on.
+
+    let ipv6_listener = TcpListener::bind("[::1]:3000").await;
+
+    match ipv6_listener {
+        Ok(listener) => {
+            println!("IPv6 Listener bound: {}", listener.local_addr().unwrap());
+            let app_v6 = app.clone();
+            tokio::spawn(async move {
+                // This runs in the background
+                if let Err(e) = axum::serve(listener, app_v6).await {
+                    eprintln!("IPv6 Server Error: {}", e);
+                }
+            });
+        }
+        Err(e) => {
+            println!("IPv6 [::1]:3000 could not be bound (this is normal if IPv6 is disabled). Error: {:?}", e);
+        }
+    }
+
+    // Now bind IPv4 0.0.0.0. This allows external access and standard IPv4 localhost.
+    // This is required, so we unwrap here.
+    let listener_v4 = TcpListener::bind("0.0.0.0:3000").await.expect("Failed to bind IPv4 0.0.0.0:3000");
+    let addr = listener_v4.local_addr().unwrap();
+    println!("IPv4 Listener bound: {}", addr);
+
+    println!("Server Ready.");
     println!(" -> Open http://localhost:3000 in your browser");
     println!(" -> If that doesn't work, try http://127.0.0.1:3000");
 
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener_v4, app).await.unwrap();
 }
 
 #[derive(Deserialize)]
